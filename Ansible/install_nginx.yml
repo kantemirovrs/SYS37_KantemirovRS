@@ -1,0 +1,37 @@
+---
+- name: install_nginx
+  gather_facts: false
+  hosts: webservers
+  vars:
+    ansible_ssh_user: user
+  become: true
+
+  pre_tasks:
+    - name: "Verif_ssh_port_is_open"
+      wait_for:
+        host: "{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}"
+        port: 22
+        delay: 5
+        timeout: 300
+        state: started
+        search_regex: OpenSSH
+
+  tasks:
+    - name: "install_nginx"
+      ansible.builtin.apt:
+        name: nginx
+        state: latest
+        update_cache: true
+
+    - name: "Delete_/var/www/html"
+      ansible.builtin.file:
+        path: "/var/www/html"
+        state: "absent"
+
+    - name: "Copy_lending_to_/var/www/html"
+      ansible.builtin.copy:
+        src: "../www/html"
+        dest: "/var/www/"
+        owner: "user"
+        group: "user"
+        mode: "0644"

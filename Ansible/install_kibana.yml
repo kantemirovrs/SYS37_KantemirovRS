@@ -1,0 +1,37 @@
+---
+- name: "Install  kibana"
+  hosts: kibana
+  vars:
+    ansible_ssh_user: user
+  become: yes
+  tasks:
+    - name: "install gnupg, apt_transp_https"
+      ansible.builtin.apt:
+        pkg:
+          - apt-transport-https
+          - gnupg
+        state: present
+
+    - name: "Download kibana"
+      ansible.builtin.get_url:
+        url: https://mirror.yandex.ru/mirrors/elastic/7/pool/main/k/kibana/kibana-7.4.1-amd64.deb
+        dest: /home/user/
+
+    - name: "Install kibana"
+      ansible.builtin.apt:
+        deb: /home/user/kibana-7.4.1-amd64.deb
+
+    - name: "Copy config kibana"
+      ansible.builtin.copy:
+        src: ../Config_files/kibana.yml
+        dest: /etc/kibana
+        mode: 0644
+        owner: root
+        group: root
+
+    - name: "Start kibana.service"
+      ansible.builtin.systemd:
+        daemon_reload: true
+        name: kibana.service
+        state: started
+        enabled: true

@@ -1,0 +1,36 @@
+---
+- name: install_zabbixagent
+  gather_facts: false
+  hosts: webservers
+  vars:
+    ansible_ssh_user: user
+  become: true
+
+  tasks:
+    - name: "copy_zabbix"
+      ansible.builtin.copy:
+        src: "../Ansible/zabbix-release_latest_6.0+ubuntu22.04_all.deb"
+        dest: "/tmp/zabbix-release_latest_6.0+ubuntu22.04_all.deb"
+        owner: "user"
+        group: "user"
+        mode: "0644"
+
+    - name: Install a .deb package
+      ansible.builtin.apt:
+        deb: /tmp/zabbix-release_latest_6.0+ubuntu22.04_all.deb
+        update_cache: true
+
+    - name: "install___zabbixagent"
+      ansible.builtin.apt:
+        name: zabbix-agent
+
+    - name: "Copy config  zabbix-agent"
+      ansible.builtin.shell: sudo sed -i 's/Server=127.0.0.1/Server=zabbix/g' /etc/zabbix/zabbix_agentd.conf
+      args:
+        executable: /bin/bash
+
+    - name: "Start zabbix"
+      ansible.builtin.systemd:
+        name: zabbix-agent
+        state: restarted
+        enabled: true

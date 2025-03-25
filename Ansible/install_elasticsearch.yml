@@ -1,0 +1,41 @@
+---
+- name: "elasticsearch"
+  hosts: elasticsearch
+  gather_facts: false
+  become: yes
+  tasks:
+    - name: "Install gnupg, apt_transp_https"
+      ansible.builtin.apt:
+        name:
+          - apt-transport-https
+          - gnupg
+          - nginx
+        state: present
+        update_cache: true
+    - name: "Download elasticsearch"
+      ansible.builtin.get_url:
+        url: https://mirror.yandex.ru/mirrors/elastic/7/pool/main/e/elasticsearch/elasticsearch-7.4.1-amd64.deb
+        dest: /home/user/
+    - name: "Install elasticsearch"
+      ansible.builtin.apt:
+        deb: /home/user/elasticsearch-7.4.1-amd64.deb
+
+    - name: "install_elasticsearch"
+      ansible.builtin.apt:
+        name: elasticsearch
+        state: present
+
+    - name: "Copy config elasticsearch"
+      ansible.builtin.copy:
+        src: ../Config_files/elasticsearch.yml
+        dest: /etc/elasticsearch
+        mode: 0660
+        owner: root
+        group: elasticsearch
+
+    - name: "Start elasticsearch.service"
+      ansible.builtin.systemd:
+        name: elasticsearch.service
+        daemon_reload: true
+        state: started
+        enabled: true

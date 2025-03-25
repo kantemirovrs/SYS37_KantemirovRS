@@ -1,0 +1,32 @@
+---
+- name: "filebeat"
+  gather_facts: false
+  hosts: webservers
+  become: yes
+  tasks:
+    - name: "Install gnupg, apt_transp_https"
+      ansible.builtin.apt:
+        name:
+          - gnupg
+          - apt-transport-https
+        state: present
+    - name: "Download filebeat"
+      ansible.builtin.get_url:
+        url: https://mirror.yandex.ru/mirrors/elastic/7/pool/main/f/filebeat/filebeat-7.4.1-amd64.deb
+        dest: /home/user/
+    - name: "Install filebeat"
+      ansible.builtin.apt:
+        deb: /home/user/filebeat-7.4.1-amd64.deb
+    - name: "Copy config filebeat"
+      ansible.builtin.copy:
+        src: ../Config_files/filebeat.yml
+        dest: /etc/filebeat
+        mode: 0600
+        owner: root
+        group: root
+    - name: "Start filebeat.service"
+      ansible.builtin.systemd:
+        name: filebeat.service
+        daemon_reload: true
+        state: started
+        enabled: true
