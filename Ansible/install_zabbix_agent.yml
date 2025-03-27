@@ -15,7 +15,7 @@
         group: "user"
         mode: "0644"
 
-    - name: Install a .deb package
+    - name: "Install a .deb package"
       ansible.builtin.apt:
         deb: /tmp/zabbix-release_latest_6.0+ubuntu22.04_all.deb
         update_cache: true

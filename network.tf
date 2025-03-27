@@ -81,33 +81,16 @@ resource "yandex_vpc_security_group" "LAN" {
 resource "yandex_vpc_security_group" "web_sg" {
   name       = "web_sg-${var.flow}"
   network_id = yandex_vpc_network.develop.id
-
   ingress {
+    description    = "Allow HTTPS"
+    protocol       = "TCP"
+    port           = 443
+    v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    description    = "Allow HTTP"
     protocol       = "TCP"
     port           = 80
-    v4_cidr_blocks = ["10.0.0.0/8"]
-  }
-
-  ingress {
-    protocol       = "TCP"
-    port           = 4040
-    v4_cidr_blocks = ["10.0.0.0/8"]
-  }
-
-  ingress {
-    protocol       = "TCP"
-    port           = 9100
-    v4_cidr_blocks = ["10.0.0.0/8"]
-  }
-
-  ingress {
-    protocol       = "TCP"
-    port           = 5601
-    v4_cidr_blocks = ["10.0.0.0/8"]
-  }
-
-  egress {
-    protocol       = "ANY"
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
 }
@@ -130,7 +113,7 @@ resource "yandex_vpc_security_group" "zabbix" {
   network_id = yandex_vpc_network.develop.id
   ingress {
     protocol       = "ANY"
-    v4_cidr_blocks = ["0.0.0.0/0"]
+    v4_cidr_blocks = ["10.0.0.0/8"]
   }
   egress {
     protocol       = "ANY"
@@ -164,7 +147,11 @@ resource "yandex_vpc_security_group" "elasticsearch" {
     port           = 9200
     v4_cidr_blocks = ["10.0.0.0/8"]
   }
-
+  ingress {
+    protocol       = "TCP"
+    port           = 5044
+    v4_cidr_blocks = ["10.0.0.0/8"]
+  }
   ingress {
     protocol       = "TCP"
     port           = 9100

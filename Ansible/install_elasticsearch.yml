@@ -9,7 +9,6 @@
         name:
           - apt-transport-https
           - gnupg
-          - nginx
         state: present
         update_cache: true
     - name: "Download elasticsearch"
